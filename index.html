@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!--above link tag url copied from cdnjs-->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">  <!--using plug-in data aos -- for pop up animation when new quote comes copied css link from "https://michalsnik.github.io/aos/"-->
+    <link rel="stylesheet" href="style.css"/>
+    <title>Document</title>
+</head>
+<body>
+    <!--
+    <div id="quotes"></div>
+    <div id="author"></div>
+    <button id="newQ">new Quotes</button>
+    <button id="tweetMe">Tweet</button>-->  <!--no nee of this block now-->
+
+    <div class="container">
+        <div class="inner" data-aos="zoom-in"> <!--for op up animation. now adding animation-->
+            <div class="box">
+                <p class="number">
+                    <img src="logo.png" alt="tweetMe" title="TweetMe" id="tweetMe"/>
+                </p>
+
+                <div class="text">
+                    <i class="start-quote fas fa-quote-left"></i> <!--icon of inverted comma comes-->
+                    <p id="quotes" class="quote"></p>
+                    <p id="author" id="author"></p>
+                </div>
+
+                <label class="button">
+                    <p id="newQ">New Quotes</p>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script> <!--using plug-in data aos -- for pop up animation when new quote comes copied JS link from "https://michalsnik.github.io/aos/" uunder cdn sources-->
+
+    <script>
+        AOS.init();
+        const quotes = document.getElementById("quotes");
+        const author = document.getElementById("author");
+        const newQ = document.getElementById("newQ");
+        const tweetMe = document.getElementById("tweetMe");
+        let realData = ""; //so that we can use realData multile times
+        let quotesData = "";
+
+        //on writing the below three lines code, it'll automatically fetch the data on the twitter post feed
+        const tweetNow = () => {
+            let tweetPost = `https://twitter.com/intent/tweet?text=${quotesData.text}`; //twitter intent url; ?key=value is query parameter e.g ?text=${} ; use template literals
+            //now when click on tweet button it'll take to twitter post and the data will be fetched there to post ; this is done using query parameter
+            window.open(tweetPost);
+        }
+
+        const getNewQuotes = () => {
+            let rnum = Math.floor(Math.random() * 10); 
+            //picking random whole num using Math.floor(MAth.random), if didn't multiply 10 then random num b/w 0 and 1 only achieved
+            //to get random quotes on every refresh
+            quotesData = realData[rnum];
+            quotes.innerText= `${quotesData.text}`;
+            quotesData.author == null //using ternary opr
+                ? (author.innerText = 'unKnown') //if author name not known
+                : (author.innerText = `${quotesData.author}`);
+        };
+
+        const getQuotes = async() => {
+            const api = "https://type.fit/api/quotes";
+            try {
+                let data = await fetch("https://type.fit/api/quotes");//fetching api in JS using fetch api ; 
+                //await--asyn--jab tk koi kaam na ho intzaar kro par baaki kaam rukne nhi chahiye; jab tk data nhi milega well wait, then store the req data in var data
+                realData = await data.json() 
+                //if we don't put .json , the body will be Readable Stream (check in inspect<console) ; so we convert it to json
+                //whenever working with async . do await
+                getNewQuotes(); //jab bhi func ko call krte ho uske hamesha jaha pe call kiya hai uske upr hi define krna
+                //console.log(realData[10].text);
+                //console.log(realData[10].author);
+            } catch(error) {}
+        };
+
+        tweetMe.addEventListener('click', tweetNow); //on clicking tweet button
+        newQ.addEventListener('click', getNewQuotes); //aading event so that on cclicking the button new quote is fetched from real time api
+        
+        getQuotes(); //jab jab page ko reload kre new quotes aane chahiye
+    </script>
+</body>
+</html>
